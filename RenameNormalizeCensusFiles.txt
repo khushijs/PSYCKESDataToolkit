@@ -1,0 +1,88 @@
+import os
+import openpyxl
+from tkinter import filedialog
+import tkinter as tk
+
+# Create a Tkinter root window to hide the file dialog box
+root = tk.Tk()
+root.withdraw()
+
+# Ask user for the folder path
+folder_path = filedialog.askdirectory(title="Choose the folder")
+if not folder_path:
+    print("No folder selected. Exiting...")
+    exit()
+
+# loop through all files in the folder
+for filename in os.listdir(folder_path):
+
+    # check if file is an Excel file
+    if filename.endswith('.xlsx'):
+
+        # Load the workbook 
+        filepath = os.path.join(folder_path, filename)
+        wb = openpyxl.load_workbook(filepath)
+        ws = wb.active
+
+        # Construct new filename and rename file
+        new_filenameraw = (ws['A1'].value + ' - ' + ws['B4'].value + ' - ' + ws['B5'].value) + '.xlsx'
+        new_filenamefinal = new_filenameraw.replace(':', '_').replace('/', '_')
+        new_filepath = os.path.join(folder_path, new_filenamefinal)
+
+        try:
+            os.rename(filepath, new_filepath)
+        except Exception as e:
+            print(f'Error renaming file {filename}: {str(e)}')
+
+        # Check if filename contains 'Outpatient Providers'
+        if 'Outpatient Providers' in new_filenamefinal:
+
+            # Concatenate values and replace cell values
+            op_g12_value = ws['G12'].value
+            op_j12_value = ws['J12'].value
+            op_m12_value = ws['M12'].value
+            op_p12_value = ws['P12'].value
+            ws['G13'] = op_g12_value + ws['G13'].value
+            ws['H13'] = op_g12_value + ws['H13'].value
+            ws['I13'] = op_g12_value + ws['I13'].value
+            ws['J13'] = op_j12_value + ws['J13'].value
+            ws['K13'] = op_j12_value + ws['K13'].value
+            ws['L13'] = op_j12_value + ws['L13'].value
+            ws['M13'] = op_m12_value + ws['M13'].value
+            ws['N13'] = op_m12_value + ws['N13'].value
+            ws['O13'] = op_m12_value + ws['O13'].value
+            ws['P13'] = op_p12_value + ws['P13'].value
+            ws['Q13'] = op_p12_value + ws['Q13'].value
+            ws['R13'] = op_p12_value + ws['R13'].value
+            ws['S13'] = op_p12_value + ws['S13'].value
+
+            # Save changes to the new workbook
+            wb.save(new_filepath)
+
+        # Check if filename contains 'Hospital Utilization'
+        elif 'Hospital Utilization' in new_filenamefinal:
+            print(f"Processing hospital utilization file: {new_filenamefinal}")
+
+            # Concatenate values and replace cell values
+            hu_g12_value = ws['G12'].value
+            hu_j12_value = ws['J12'].value
+            ws['G13'] = hu_g12_value + ws['G13'].value
+            ws['H13'] = hu_g12_value + ws['H13'].value
+            ws['I13'] = hu_g12_value + ws['I13'].value
+            ws['J13'] = hu_j12_value + ws['J13'].value
+            ws['K13'] = hu_j12_value + ws['K13'].value
+            ws['L13'] = hu_j12_value + ws['L13'].value
+
+            # Save changes to the new workbook
+            wb.save(new_filepath)
+
+        # Check if filename contains 'Standard'
+        elif 'Standard' in new_filenamefinal:
+            print(f"Processing standard file: {new_filenamefinal}")
+
+            # Insert a row above row 12
+            ws.insert_rows(12)
+
+
+            # Save changes to the new workbook
+            wb.save(new_filepath)

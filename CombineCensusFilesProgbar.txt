@@ -1,0 +1,61 @@
+import os
+import pandas as pd
+import tkinter as tk
+from tkinter import filedialog
+from tqdm import tqdm  # Import tqdm
+
+# Create a Tkinter root window to hide the file dialog box
+root = tk.Tk()
+root.withdraw()
+
+# Ask user for the folder path
+folder_path = filedialog.askdirectory(title="Choose the folder")
+if not folder_path:
+    print("No folder selected. Exiting...")
+    exit()
+
+def rename_files(folder_path):
+    # Get a list of all the files in the folder
+    files = os.listdir(folder_path)
+    
+    # Rename all files in the folder
+    for filename in files:
+        # Replace spaces with underscores
+        new_filename = filename.replace(' ', '_').replace('-', '_')
+        
+        # Rename the file
+        os.rename(os.path.join(folder_path, filename), os.path.join(folder_path, new_filename))
+
+# Rename all files in the folder
+rename_files(folder_path)
+
+# Get a list of all the files in the folder
+excel_files = [f for f in os.listdir(folder_path)]
+
+# create an empty dataframe to store the combined data
+combined_data = pd.DataFrame()
+
+# loop through all the Excel files in the folder and append data from each file into combined_data
+for file_name in tqdm(os.listdir(folder_path), desc="Combining data"):
+    file_path = os.path.join(folder_path, file_name)
+    try:
+        df = pd.read_excel(file_path, engine='openpyxl', skiprows=range(12))  # skip the first 12 rows
+        combined_data = pd.concat([combined_data, df])
+    except Exception as e:
+        print(f"Error reading file {file_path}: {e}")
+
+# Get list of all unique columns and common columns
+all_columns = list(combined_data.columns)
+common_columns = set(all_columns)
+common_columns_list = list(common_columns)
+common_df = combined_data[common_columns_list]
+
+# Concatenate all the dataframes together and align columns
+master_df = pd.concat([combined_data], axis=0, ignore_index=True)
+master_df = master_df.reindex(columns=all_columns)
+
+# Select only the common columns
+master_df = master_df[common_columns_list]
+
+# Write the combined data to a new Excel file
+combined_data.to_excel('MasterCombinedCensus.xlsx', index=False)
