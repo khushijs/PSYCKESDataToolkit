@@ -1,0 +1,9 @@
+Sub DeleteFirst5Rows()
+
+Dim ws As Worksheet
+
+For Each ws In ActiveWorkbook.Worksheets
+    ws.Rows("1:5").Delete Shift:=xlUp
+Next ws
+
+End Sub

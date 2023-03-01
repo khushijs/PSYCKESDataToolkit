@@ -1,0 +1,41 @@
+Sub CopyData()
+
+    Dim providerName As String
+    Dim indicatorName As String
+    Dim providerStart As Long
+    Dim indicatorStart As Long
+    Dim headerValue As String
+    Dim ws As Worksheet
+    
+    For Each ws In ThisWorkbook.Worksheets
+        ws.Range("A1:H4").UnMerge
+        headerValue = ws.Range("A1").Value
+        
+        ' Find the start position of the provider name
+        providerStart = InStr(headerValue, "Provider:") + Len("Provider:")
+        providerName = Trim(Mid(headerValue, providerStart, InStr(providerStart, headerValue, "; Filters:") - providerStart))
+        
+        ' Find the start position of the indicator name
+        indicatorStart = InStr(headerValue, "Indicator:") + Len("Indicator:")
+        indicatorName = Trim(Mid(headerValue, indicatorStart, Len(headerValue) - indicatorStart + 1))
+        
+        ' Write the provider and indicator column headers
+        ws.Range("H6").Value = "Provider"
+        ws.Range("I6").Value = "Indicator"
+        
+        ' Write the provider and indicator names to cells H7 and I7
+        ws.Range("H7").Value = providerName
+        ws.Range("I7").Value = indicatorName
+        
+        ' Find the last row of the sheet
+        Dim lastRow As Long
+        lastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+        
+        ' Copy the provider and indicator names down to the last row
+        ws.Range("H7:H" & lastRow).Value = providerName
+        ws.Range("I7:I" & lastRow).Value = indicatorName
+        
+    Next ws
+
+End Sub
+

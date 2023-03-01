@@ -1,0 +1,24 @@
+Sub CombineSheets()
+    Dim sPath As String
+    Dim sFname As String
+    Dim wBk As Workbook
+    Dim wSht As Variant
+
+    Application.EnableEvents = False
+    Application.ScreenUpdating = False
+    sPath = InputBox("Enter a full path to workbooks")
+    ChDir sPath
+    sFname = InputBox("Enter a filename pattern")
+    sFname = Dir(sPath & "\" & sFname & ".xl*", vbNormal)
+    wSht = InputBox("Enter a worksheet name to copy")
+    Do Until sFname = ""
+        Set wBk = Workbooks.Open(sFname)
+        Windows(sFname).Activate
+        Sheets(wSht).Copy Before:=ThisWorkbook.Sheets(1)
+        wBk.Close False
+        sFname = Dir()
+    Loop
+    ActiveWorkbook.Save
+    Application.EnableEvents = True
+    Application.ScreenUpdating = True
+End Sub
